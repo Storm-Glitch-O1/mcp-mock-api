@@ -94,3 +94,4 @@ The server exposes these MCP tools for LLM interaction:
 - `create_endpoint` - Create or update a mock endpoint
 - `list_endpoints` - List all mock endpoints
 - `delete_endpoint` - Delete a mock endpoint
+- `get_endpoint` - Retrieve details of a specific mock endpoint
