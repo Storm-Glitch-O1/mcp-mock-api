@@ -24,7 +24,7 @@ export class PersistentStorage {
         "utf8"
       );
 
-      console.log(`📁 Saved mock endpoints to: ${this.storageFile}`);
+      console.error(`📁 Saved mock endpoints to: ${this.storageFile}`);
     } catch (error) {
       console.error("Failed to save mock endpoints:", error);
       throw error;
@@ -35,7 +35,7 @@ export class PersistentStorage {
     try {
       const data = await fs.readFile(this.storageFile, "utf8");
       const endpoints = JSON.parse(data) as MockStorage;
-      console.log(
+      console.error(
         `📂 Loaded ${Object.keys(endpoints).length} mock endpoints from: ${
           this.storageFile
         }`
@@ -43,7 +43,7 @@ export class PersistentStorage {
       return endpoints;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        console.log(
+        console.error(
           `📁 No existing storage file found at: ${this.storageFile}. Starting with empty endpoints.`
         );
       } else {

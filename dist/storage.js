@@ -12,7 +12,7 @@ export class PersistentStorage {
             await fs.mkdir(this.storageDir, { recursive: true });
             // Write endpoints to file
             await fs.writeFile(this.storageFile, JSON.stringify(endpoints, null, 2), "utf8");
-            console.log(`📁 Saved mock endpoints to: ${this.storageFile}`);
+            console.error(`📁 Saved mock endpoints to: ${this.storageFile}`);
         }
         catch (error) {
             console.error("Failed to save mock endpoints:", error);
@@ -23,12 +23,12 @@ export class PersistentStorage {
         try {
             const data = await fs.readFile(this.storageFile, "utf8");
             const endpoints = JSON.parse(data);
-            console.log(`📂 Loaded ${Object.keys(endpoints).length} mock endpoints from: ${this.storageFile}`);
+            console.error(`📂 Loaded ${Object.keys(endpoints).length} mock endpoints from: ${this.storageFile}`);
             return endpoints;
         }
         catch (error) {
             if (error.code === "ENOENT") {
-                console.log(`📁 No existing storage file found at: ${this.storageFile}. Starting with empty endpoints.`);
+                console.error(`📁 No existing storage file found at: ${this.storageFile}. Starting with empty endpoints.`);
             }
             else {
                 console.error("Failed to load mock endpoints:", error);

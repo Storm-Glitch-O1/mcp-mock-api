@@ -17,7 +17,7 @@ const args = process.argv.slice(2);
 const storagePathArg = args.find((arg) => arg.startsWith("--storage-path="));
 const storagePath = storagePathArg ? storagePathArg.split("=")[1] : undefined;
 
-console.log(
+console.error(
   `📂 Storage path ${storagePath ? "set to: " + storagePath : "using default"}`
 );
 
@@ -77,8 +77,8 @@ const server = new McpServer({
 // 2. Add dynamic endpoint management tools
 server.tool(
   "create_endpoint",
+  "Create or update a mock API endpoint with customizable response and status code",
   {
-    description: "Create or update a mock API endpoint with customizable response and status code",
     path: z.string().describe("URL path for the endpoint (e.g., /api/users)"),
     method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
     statusCode: z
@@ -110,9 +110,8 @@ server.tool(
 
 server.tool(
   "list_endpoints",
-  {
-    description: "List all currently configured mock API endpoints"
-  },
+  "List all currently configured mock API endpoints",
+  {},
   async () => {
     const endpoints = Object.entries(mockEndpoints).map(([id, data]) => ({
       id,
@@ -138,8 +137,8 @@ server.tool(
 
 server.tool(
   "delete_endpoint",
+  "Delete an existing mock API endpoint",
   {
-    description: "Delete an existing mock API endpoint",
     path: z.string().describe("URL path for the endpoint to delete"),
     method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
   },
@@ -217,7 +216,7 @@ const httpServer = http.createServer(async (req, res) => {
     if (mockEndpoints[mockId]) {
       const mock = mockEndpoints[mockId];
       sendJSON(res, mock.statusCode, mock.response);
-      console.log(`📡 Served mock: ${method} ${url} → ${mock.statusCode}`);
+      console.error(`📡 Served mock: ${method} ${url} → ${mock.statusCode}`);
       return;
     }
 
@@ -254,17 +253,17 @@ httpServer.listen(PORT, async () => {
   // Load existing endpoints on startup
   await loadEndpoints();
 
-  console.log(`🚀 Mock API Server running on http://localhost:${PORT}`);
-  console.log(`💾 Storage location: ${storage.getStoragePath()}`);
-  console.log(
+  console.error(`🚀 Mock API Server running on http://localhost:${PORT}`);
+  console.error(`💾 Storage location: ${storage.getStoragePath()}`);
+  console.error(
     `📊 Loaded ${Object.keys(mockEndpoints).length} mock endpoints from storage`
   );
-  console.log(`📝 Built-in endpoints:`);
-  console.log(
+  console.error(`📝 Built-in endpoints:`);
+  console.error(
     `   GET  http://localhost:${PORT}/                      - Health check`
   );
-  console.log(`\n🧪 Test with curl:`);
-  console.log(`   curl http://localhost:${PORT}/`);
-  console.log(`\n🤖 MCP Server started (communicating via stdio)`);
-  console.log(`💡 LLMs can now use tools to create dynamic mock endpoints!`);
+  console.error(`\n🧪 Test with curl:`);
+  console.error(`   curl http://localhost:${PORT}/`);
+  console.error(`\n🤖 MCP Server started (communicating via stdio)`);
+  console.error(`💡 LLMs can now use tools to create dynamic mock endpoints!`);
 });

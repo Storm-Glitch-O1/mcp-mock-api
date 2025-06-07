@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package",
   "name": "hello-mcp",
   "version": "1.0.0",
   "description": "",
