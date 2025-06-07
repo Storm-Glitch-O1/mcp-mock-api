@@ -1,6 +1,6 @@
 {
   "servers": {
-    "simpleDemo": {
+    "mcp-mock-api": {
       "type": "stdio",
       "command": "node",
       "args": [

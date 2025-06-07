@@ -70,7 +70,7 @@ In the [`.vscode/mcp.json`](.vscode/mcp.json) file, you can specify both storage
 ```json
 {
   "servers": {
-    "simpleDemo": {
+    "mcp-mock-api": {
       "type": "stdio",
       "command": "node",
       "args": [
