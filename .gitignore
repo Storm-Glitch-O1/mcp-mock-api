@@ -44,3 +44,10 @@ coverage/
 
 # Data files (optional - uncomment if you don't want to track mock data)
 # mcp-data/
+
+
+# Mock data
+mcp-data/
+
+# Qodo
+.qodo

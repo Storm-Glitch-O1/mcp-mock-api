@@ -4,9 +4,9 @@
       "type": "stdio",
       "command": "node",
       "args": [
-        "${workspaceFolder}/dist/server.js",
-        "--storage-path=${workspaceFolder}/mcp-data",
-        "--port=9090"
+        "${workspaceFolder}/dist/server.js", // Path to the compiled server script
+        "--storage-path=${workspaceFolder}/mcp-data", // Path to persistent storage adjust as needed
+        "--port=9090" // Example port, adjust as needed
       ]
     }
   }
