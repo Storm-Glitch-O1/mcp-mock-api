@@ -4,7 +4,7 @@ A flexible mock API server integrated with Model Context Protocol (MCP) for LLM-
 
 ## Features
 
-- Create, list, and delete mock endpoints via MCP tools
+- Create, list, and delete mock endpoints and their `responses` via MCP tools
 - Persistent storage of mock endpoints in configurable location
 - HTTP server for testing mock endpoints
 - MCP integration for LLM-controlled API mocking
@@ -94,3 +94,4 @@ The server exposes these MCP tools for LLM interaction:
 - `create_endpoint` - Create or update a mock endpoint
 - `list_endpoints` - List all mock endpoints
 - `delete_endpoint` - Delete a mock endpoint
+- `get_endpoint` - Retrieve details of a specific mock endpoint

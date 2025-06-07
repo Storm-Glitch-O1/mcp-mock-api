@@ -41,23 +41,6 @@ async function loadEndpoints() {
         console.error("Failed to load existing endpoints:", error);
     }
 }
-// Helper function to parse JSON from request
-function parseBody(req) {
-    return new Promise((resolve, reject) => {
-        let body = "";
-        req.on("data", (chunk) => {
-            body += chunk.toString();
-        });
-        req.on("end", () => {
-            try {
-                resolve(body ? JSON.parse(body) : {});
-            }
-            catch (error) {
-                reject(error);
-            }
-        });
-    });
-}
 // Helper function to send JSON response
 function sendJSON(res, statusCode, data) {
     res.writeHead(statusCode, { "Content-Type": "application/json" });
@@ -109,6 +92,31 @@ server.tool("list_endpoints", "List all currently configured mock API endpoints"
             },
         ],
     };
+});
+// Tool to retrieve details of a specific endpoint
+server.tool("get_endpoint", "Get details for a configured mock API endpoint", {
+    path: z.string().describe("URL path for the endpoint"),
+    method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
+}, async ({ path, method }) => {
+    const id = `${method}:${path}`;
+    const endpoint = mockEndpoints[id];
+    if (endpoint) {
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `ℹ️ Endpoint: ${method} ${path}\nStatus: ${endpoint.statusCode}\nResponse: ${JSON.stringify(endpoint.response, null, 2)}`,
+                },
+            ],
+        };
+    }
+    else {
+        return {
+            content: [
+                { type: "text", text: `❌ Endpoint not found: ${method} ${path}` },
+            ],
+        };
+    }
 });
 server.tool("delete_endpoint", "Delete an existing mock API endpoint", {
     path: z.string().describe("URL path for the endpoint to delete"),
