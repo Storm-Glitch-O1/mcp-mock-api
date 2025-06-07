@@ -1,11 +1,12 @@
 {
-    // (no sensitive values here, so skip “inputs”)
-    "servers": {
-      "simpleDemo": {
-        "type": "stdio",
-        "command": "node",
-        "args": ["${workspaceFolder}/dist/server.js"]
-      }
+  "servers": {
+    "simpleDemo": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/dist/server.js",
+        "--storage-path=${workspaceFolder}/mcp-data"
+      ]
     }
   }
-  
+}

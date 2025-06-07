@@ -1,0 +1,18 @@
+{
+  "POST:/api/endpoint": {
+    "method": "POST",
+    "path": "/api/endpoint",
+    "response": {
+      "message": "Endpoint created successfully"
+    },
+    "statusCode": 201
+  },
+  "GET:/api/test": {
+    "method": "GET",
+    "path": "/api/test",
+    "response": {
+      "message": "Hello from the test endpoint!"
+    },
+    "statusCode": 200
+  }
+}

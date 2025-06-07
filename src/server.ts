@@ -5,14 +5,45 @@ import {
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { PersistentStorage } from "./storage.js";
+import { MockStorage } from "./types.js";
 
 const PORT = 9090;
 
+// Get storage path from command line arguments
+// Usage: node server.js --storage-path=/path/to/storage
+// If not provided, defaults to ./data in the current working directory
+const args = process.argv.slice(2);
+const storagePathArg = args.find((arg) => arg.startsWith("--storage-path="));
+const storagePath = storagePathArg ? storagePathArg.split("=")[1] : undefined;
+
+console.log(
+  `📂 Storage path ${storagePath ? "set to: " + storagePath : "using default"}`
+);
+
+// Initialize persistent storage
+const storage = new PersistentStorage(storagePath);
+
 // Store for dynamic mock endpoints
-let mockEndpoints: Record<
-  string,
-  { method: string; path: string; response: any; statusCode: number }
-> = {};
+let mockEndpoints: MockStorage = {};
+
+// Helper function to save endpoints after changes
+async function saveEndpoints() {
+  try {
+    await storage.saveMockEndpoints(mockEndpoints);
+  } catch (error) {
+    console.error("Failed to persist endpoints:", error);
+  }
+}
+
+// Load existing endpoints on startup
+async function loadEndpoints() {
+  try {
+    mockEndpoints = await storage.loadMockEndpoints();
+  } catch (error) {
+    console.error("Failed to load existing endpoints:", error);
+  }
+}
 
 // Helper function to parse JSON from request
 function parseBody(req: http.IncomingMessage): Promise<any> {
@@ -60,13 +91,16 @@ server.tool(
     const id = `${method}:${path}`;
     mockEndpoints[id] = { method, path, response, statusCode };
 
+    // Persist the changes
+    await saveEndpoints();
+
     return {
       content: [
         {
           type: "text",
           text: `✅ Created/updated mock endpoint: ${method} ${path}\nStatus: ${statusCode}\nTotal endpoints: ${
             Object.keys(mockEndpoints).length
-          }`,
+          }\n💾 Saved to: ${storage.getStoragePath()}`,
         },
       ],
     };
@@ -106,9 +140,16 @@ server.tool(
 
     if (mockEndpoints[id]) {
       delete mockEndpoints[id];
+
+      // Persist the changes
+      await saveEndpoints();
+
       return {
         content: [
-          { type: "text", text: `🗑️ Deleted endpoint: ${method} ${path}` },
+          {
+            type: "text",
+            text: `🗑️ Deleted endpoint: ${method} ${path}\n💾 Changes saved to: ${storage.getStoragePath()}`,
+          },
         ],
       };
     } else {
@@ -258,8 +299,15 @@ const httpServer = http.createServer(async (req, res) => {
 });
 
 // 7. Start the HTTP server
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
+  // Load existing endpoints on startup
+  await loadEndpoints();
+
   console.log(`🚀 Mock API Server running on http://localhost:${PORT}`);
+  console.log(`💾 Storage location: ${storage.getStoragePath()}`);
+  console.log(
+    `📊 Loaded ${Object.keys(mockEndpoints).length} mock endpoints from storage`
+  );
   console.log(`📝 Built-in endpoints:`);
   console.log(
     `   GET  http://localhost:${PORT}/                      - Health check`

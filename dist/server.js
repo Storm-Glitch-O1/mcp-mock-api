@@ -1,45 +1,38 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-const http = __importStar(require("http"));
-const zod_1 = require("zod");
-const mcp_js_1 = require("@modelcontextprotocol/sdk/server/mcp.js");
-const stdio_js_1 = require("@modelcontextprotocol/sdk/server/stdio.js");
+import * as http from "http";
+import { z } from "zod";
+import { McpServer, ResourceTemplate, } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { PersistentStorage } from "./storage.js";
 const PORT = 9090;
+// Get storage path from command line arguments
+// Usage: node server.js --storage-path=/path/to/storage
+// If not provided, defaults to ./data in the current working directory
+const args = process.argv.slice(2);
+const storagePathArg = args.find(arg => arg.startsWith('--storage-path='));
+const storagePath = storagePathArg ? storagePathArg.split('=')[1] : undefined;
+console.log(`📂 Storage path ${storagePath ? 'set to: ' + storagePath : 'using default'}`);
+// Initialize persistent storage
+const storage = new PersistentStorage(storagePath);
 // Store for dynamic mock endpoints
 let mockEndpoints = {};
+// Helper function to save endpoints after changes
+async function saveEndpoints() {
+    try {
+        await storage.saveMockEndpoints(mockEndpoints);
+    }
+    catch (error) {
+        console.error('Failed to persist endpoints:', error);
+    }
+}
+// Load existing endpoints on startup
+async function loadEndpoints() {
+    try {
+        mockEndpoints = await storage.loadMockEndpoints();
+    }
+    catch (error) {
+        console.error('Failed to load existing endpoints:', error);
+    }
+}
 // Helper function to parse JSON from request
 function parseBody(req) {
     return new Promise((resolve, reject) => {
@@ -63,28 +56,30 @@ function sendJSON(res, statusCode, data) {
     res.end(JSON.stringify(data));
 }
 // 1. Instantiate an MCP server with enhanced capabilities
-const server = new mcp_js_1.McpServer({
+const server = new McpServer({
     name: "mock-api-server",
     version: "1.0.0",
 });
 // 2. Add dynamic endpoint management tools
 server.tool("create_endpoint", {
-    path: zod_1.z.string().describe("URL path for the endpoint (e.g., /api/users)"),
-    method: zod_1.z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
-    statusCode: zod_1.z
+    path: z.string().describe("URL path for the endpoint (e.g., /api/users)"),
+    method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
+    statusCode: z
         .number()
         .optional()
         .default(200)
         .describe("HTTP status code to return"),
-    response: zod_1.z.any().describe("JSON response body to return"),
+    response: z.any().describe("JSON response body to return"),
 }, async ({ path, method, statusCode = 200, response }) => {
     const id = `${method}:${path}`;
     mockEndpoints[id] = { method, path, response, statusCode };
+    // Persist the changes
+    await saveEndpoints();
     return {
         content: [
             {
                 type: "text",
-                text: `✅ Created/updated mock endpoint: ${method} ${path}\nStatus: ${statusCode}\nTotal endpoints: ${Object.keys(mockEndpoints).length}`,
+                text: `✅ Created/updated mock endpoint: ${method} ${path}\nStatus: ${statusCode}\nTotal endpoints: ${Object.keys(mockEndpoints).length}\n💾 Saved to: ${storage.getStoragePath()}`,
             },
         ],
     };
@@ -108,15 +103,17 @@ server.tool("list_endpoints", {}, async () => {
     };
 });
 server.tool("delete_endpoint", {
-    path: zod_1.z.string().describe("URL path for the endpoint to delete"),
-    method: zod_1.z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
+    path: z.string().describe("URL path for the endpoint to delete"),
+    method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
 }, async ({ path, method }) => {
     const id = `${method}:${path}`;
     if (mockEndpoints[id]) {
         delete mockEndpoints[id];
+        // Persist the changes
+        await saveEndpoints();
         return {
             content: [
-                { type: "text", text: `🗑️ Deleted endpoint: ${method} ${path}` },
+                { type: "text", text: `🗑️ Deleted endpoint: ${method} ${path}\n💾 Changes saved to: ${storage.getStoragePath()}` },
             ],
         };
     }
@@ -129,13 +126,13 @@ server.tool("delete_endpoint", {
     }
 });
 // 3. Keep the original add tool
-server.tool("add", { a: zod_1.z.number(), b: zod_1.z.number() }, async ({ a, b }) => {
+server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => {
     return {
         content: [{ type: "text", text: `Result: ${a + b}` }],
     };
 });
 // 4. Keep the original greeting resource
-server.resource("greeting", new mcp_js_1.ResourceTemplate("greeting://{name}", { list: undefined }), async (uri, { name }) => {
+server.resource("greeting", new ResourceTemplate("greeting://{name}", { list: undefined }), async (uri, { name }) => {
     return {
         contents: [
             {
@@ -146,7 +143,7 @@ server.resource("greeting", new mcp_js_1.ResourceTemplate("greeting://{name}", {
     };
 });
 // 5. Set up MCP transport (stdio for LLM communication)
-const transport = new stdio_js_1.StdioServerTransport();
+const transport = new StdioServerTransport();
 server.connect(transport).catch((err) => {
     console.error("Failed to connect MCP server:", err);
 });
@@ -193,9 +190,9 @@ const httpServer = http.createServer(async (req, res) => {
         if (url === "/tools/add" && method === "POST") {
             try {
                 const body = await parseBody(req);
-                const schema = zod_1.z.object({
-                    a: zod_1.z.number(),
-                    b: zod_1.z.number(),
+                const schema = z.object({
+                    a: z.number(),
+                    b: z.number(),
                 });
                 const validated = schema.parse(body);
                 const result = validated.a + validated.b;
@@ -241,8 +238,12 @@ const httpServer = http.createServer(async (req, res) => {
     }
 });
 // 7. Start the HTTP server
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
+    // Load existing endpoints on startup
+    await loadEndpoints();
     console.log(`🚀 Mock API Server running on http://localhost:${PORT}`);
+    console.log(`💾 Storage location: ${storage.getStoragePath()}`);
+    console.log(`📊 Loaded ${Object.keys(mockEndpoints).length} mock endpoints from storage`);
     console.log(`📝 Built-in endpoints:`);
     console.log(`   GET  http://localhost:${PORT}/                      - Health check`);
     console.log(`   POST http://localhost:${PORT}/tools/add             - Add numbers`);
@@ -254,3 +255,4 @@ httpServer.listen(PORT, () => {
     console.log(`\n🤖 MCP Server started (communicating via stdio)`);
     console.log(`💡 LLMs can now use tools to create dynamic mock endpoints!`);
 });
+//# sourceMappingURL=server.js.map

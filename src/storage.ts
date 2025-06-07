@@ -1,0 +1,59 @@
+import fs from "fs/promises";
+import path from "path";
+import { MockStorage } from "./types.js";
+
+export class PersistentStorage {
+  private storageDir: string;
+  private storageFile: string;
+
+  constructor(dataPath?: string) {
+    // Use provided path or default to './data' relative to cwd
+    this.storageDir = dataPath || path.join(process.cwd(), "data");
+    this.storageFile = path.join(this.storageDir, "mockEndpoints.json");
+  }
+
+  async saveMockEndpoints(endpoints: MockStorage): Promise<void> {
+    try {
+      // Create directory if it doesn't exist
+      await fs.mkdir(this.storageDir, { recursive: true });
+
+      // Write endpoints to file
+      await fs.writeFile(
+        this.storageFile,
+        JSON.stringify(endpoints, null, 2),
+        "utf8"
+      );
+
+      console.log(`📁 Saved mock endpoints to: ${this.storageFile}`);
+    } catch (error) {
+      console.error("Failed to save mock endpoints:", error);
+      throw error;
+    }
+  }
+
+  async loadMockEndpoints(): Promise<MockStorage> {
+    try {
+      const data = await fs.readFile(this.storageFile, "utf8");
+      const endpoints = JSON.parse(data) as MockStorage;
+      console.log(
+        `📂 Loaded ${Object.keys(endpoints).length} mock endpoints from: ${
+          this.storageFile
+        }`
+      );
+      return endpoints;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        console.log(
+          `📁 No existing storage file found at: ${this.storageFile}. Starting with empty endpoints.`
+        );
+      } else {
+        console.error("Failed to load mock endpoints:", error);
+      }
+      return {};
+    }
+  }
+
+  getStoragePath(): string {
+    return this.storageFile;
+  }
+}
