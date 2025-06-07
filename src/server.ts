@@ -78,6 +78,7 @@ const server = new McpServer({
 server.tool(
   "create_endpoint",
   {
+    description: "Create or update a mock API endpoint with customizable response and status code",
     path: z.string().describe("URL path for the endpoint (e.g., /api/users)"),
     method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
     statusCode: z
@@ -100,38 +101,45 @@ server.tool(
           type: "text",
           text: `✅ Created/updated mock endpoint: ${method} ${path}\nStatus: ${statusCode}\nTotal endpoints: ${
             Object.keys(mockEndpoints).length
-          }\n💾 Saved to: ${storage.getStoragePath()}`,
+          }`,
         },
       ],
     };
   }
 );
 
-server.tool("list_endpoints", {}, async () => {
-  const endpoints = Object.entries(mockEndpoints).map(([id, data]) => ({
-    id,
-    method: data.method,
-    path: data.path,
-    statusCode: data.statusCode,
-  }));
+server.tool(
+  "list_endpoints",
+  {
+    description: "List all currently configured mock API endpoints"
+  },
+  async () => {
+    const endpoints = Object.entries(mockEndpoints).map(([id, data]) => ({
+      id,
+      method: data.method,
+      path: data.path,
+      statusCode: data.statusCode,
+    }));
 
-  return {
-    content: [
-      {
-        type: "text",
-        text: `📋 Mock Endpoints (${endpoints.length}):\n${
-          endpoints
-            .map((e) => `${e.method} ${e.path} → ${e.statusCode}`)
-            .join("\n") || "No endpoints defined"
-        }`,
-      },
-    ],
-  };
-});
+    return {
+      content: [
+        {
+          type: "text",
+          text: `📋 Mock Endpoints (${endpoints.length}):\n${
+            endpoints
+              .map((e) => `${e.method} ${e.path} → ${e.statusCode}`)
+              .join("\n") || "No endpoints defined"
+          }`,
+        },
+      ],
+    };
+  }
+);
 
 server.tool(
   "delete_endpoint",
   {
+    description: "Delete an existing mock API endpoint",
     path: z.string().describe("URL path for the endpoint to delete"),
     method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("HTTP method"),
   },
@@ -148,7 +156,7 @@ server.tool(
         content: [
           {
             type: "text",
-            text: `🗑️ Deleted endpoint: ${method} ${path}\n💾 Changes saved to: ${storage.getStoragePath()}`,
+            text: `🗑️ Deleted endpoint: ${method} ${path}`,
           },
         ],
       };
@@ -161,13 +169,6 @@ server.tool(
     }
   }
 );
-
-// 3. Keep the original add tool
-server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => {
-  return {
-    content: [{ type: "text", text: `Result: ${a + b}` }],
-  };
-});
 
 // 4. Keep the original greeting resource
 server.resource(
@@ -220,8 +221,6 @@ const httpServer = http.createServer(async (req, res) => {
       return;
     }
 
-    // Built-in endpoints if no mock is defined
-
     // Health check endpoint
     if (url === "/" && method === "GET") {
       sendJSON(res, 200, {
@@ -229,11 +228,6 @@ const httpServer = http.createServer(async (req, res) => {
         serverName: "mock-api-server",
         version: "1.0.0",
         mockedEndpoints: Object.keys(mockEndpoints).length,
-        builtInEndpoints: [
-          "GET / - Health check",
-          "POST /tools/add - Add two numbers",
-          "GET /resources/greeting/:name - Get greeting for name",
-        ],
         mockEndpoints: Object.entries(mockEndpoints).map(
           ([id, data]) => `${data.method} ${data.path}`
         ),
@@ -241,53 +235,10 @@ const httpServer = http.createServer(async (req, res) => {
       return;
     }
 
-    // Add tool endpoint
-    if (url === "/tools/add" && method === "POST") {
-      try {
-        const body = await parseBody(req);
-
-        const schema = z.object({
-          a: z.number(),
-          b: z.number(),
-        });
-
-        const validated = schema.parse(body);
-        const result = validated.a + validated.b;
-
-        sendJSON(res, 200, {
-          tool: "add",
-          input: { a: validated.a, b: validated.b },
-          result: result,
-          message: `Result: ${result}`,
-        });
-      } catch (error: any) {
-        sendJSON(res, 400, {
-          error: "Invalid input",
-          details: error.message || "Unknown error",
-        });
-      }
-      return;
-    }
-
-    // Greeting resource endpoint
-    const greetingMatch = url.match(/^\/resources\/greeting\/(.+)$/);
-    if (greetingMatch && method === "GET") {
-      const name = decodeURIComponent(greetingMatch[1]);
-
-      sendJSON(res, 200, {
-        resource: "greeting",
-        uri: `greeting://${name}`,
-        text: `Hello, ${name}!`,
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
-
     // 404 for unknown endpoints
     sendJSON(res, 404, {
       error: "Not found",
-      message:
-        "Endpoint not found. Use MCP tools to create mock endpoints or check built-in endpoints.",
+      message: "Endpoint not found. Use MCP tools to create mock endpoints.",
       availableEndpoints: Object.keys(mockEndpoints),
     });
   } catch (error: any) {
@@ -312,18 +263,8 @@ httpServer.listen(PORT, async () => {
   console.log(
     `   GET  http://localhost:${PORT}/                      - Health check`
   );
-  console.log(
-    `   POST http://localhost:${PORT}/tools/add             - Add numbers`
-  );
-  console.log(
-    `   GET  http://localhost:${PORT}/resources/greeting/:name - Get greeting`
-  );
   console.log(`\n🧪 Test with curl:`);
   console.log(`   curl http://localhost:${PORT}/`);
-  console.log(
-    `   curl -X POST http://localhost:${PORT}/tools/add -H "Content-Type: application/json" -d '{"a": 5, "b": 3}'`
-  );
-  console.log(`   curl http://localhost:${PORT}/resources/greeting/Alice`);
   console.log(`\n🤖 MCP Server started (communicating via stdio)`);
   console.log(`💡 LLMs can now use tools to create dynamic mock endpoints!`);
 });
