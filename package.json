@@ -1,0 +1,21 @@
+{
+  "name": "hello-mcp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.10.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "typescript": "^5.8.3",
+    "zod": "^3.25.55"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30"
+  }
+}
