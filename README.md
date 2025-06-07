@@ -1,13 +1,13 @@
-# Hello MCP - Mock API Server
+# MCP Mock API Server
 
-A simple mock API server using Model Context Protocol (MCP) with persistent storage.
+A flexible mock API server integrated with Model Context Protocol (MCP) for LLM-controlled API mocking with persistent storage.
 
 ## Features
 
-- Create, list, and delete mock endpoints
+- Create, list, and delete mock endpoints via MCP tools
 - Persistent storage of mock endpoints in configurable location
 - HTTP server for testing mock endpoints
-- MCP server for LLM integration
+- MCP integration for LLM-controlled API mocking
 
 ## Setup
 
@@ -17,8 +17,22 @@ pnpm install
 
 # Build the project
 pnpm build
+```
 
-# Run the server
+## Usage
+
+### With VS Code MCP
+
+1. Install the VS Code MCP extension
+2. The server will start automatically using the configuration in `.vscode/mcp.json`
+3. No need to manually start the server when using MCP in VS Code
+
+### Standalone Mode
+
+If you're not using VS Code MCP integration:
+
+```bash
+# Run the server manually
 pnpm start
 ```
 
@@ -51,7 +65,7 @@ node dist/server.js --storage-path=/path/to/storage --port=3000
 
 ### VS Code MCP configuration:
 
-In the `.vscode/mcp.json` file, you can specify both storage path and port:
+In the [`.vscode/mcp.json`](.vscode/mcp.json) file, you can specify both storage path and port:
 
 ```json
 {
@@ -69,19 +83,14 @@ In the `.vscode/mcp.json` file, you can specify both storage path and port:
 }
 ```
 
+To change the port, modify the `--port=9090` argument in the MCP configuration.
+
 If no port is provided, the server will use the default port 9090. If no storage path is provided, the server will use a `data` directory in the current working directory.
 
-## Usage
+## MCP Tools
 
-### Built-in Endpoints
+The server exposes these MCP tools for LLM interaction:
 
-- `GET /` - Health check
-- `POST /tools/add` - Add two numbers
-- `GET /resources/greeting/:name` - Get greeting for name
-
-### MCP Tools
-
-- `create_endpoint` - Create a mock endpoint
+- `create_endpoint` - Create or update a mock endpoint
 - `list_endpoints` - List all mock endpoints
 - `delete_endpoint` - Delete a mock endpoint
-- `add` - Add two numbers

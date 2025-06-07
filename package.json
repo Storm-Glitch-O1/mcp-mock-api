@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/package",
-  "name": "hello-mcp",
+  "name": "mcp-mock-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "A flexible mock API server integrated with Model Context Protocol (MCP) for LLM-controlled API mocking with persistent storage",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -11,9 +11,17 @@
     "dev": "tsc && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["mcp", "mock-api", "model-context-protocol", "api-testing", "llm", "typescript"],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/mcp-mock-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/mcp-mock-api/issues"
+  },
+  "homepage": "https://github.com/yourusername/mcp-mock-api#readme",
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
