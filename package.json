@@ -16,12 +16,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/mcp-mock-api.git"
+    "url": "git+https://github.com/Storm-Glitch-O1/mcp-mock-api.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/mcp-mock-api/issues"
+    "url": "https://github.com/Storm-Glitch-O1/mcp-mock-api/issues"
   },
-  "homepage": "https://github.com/yourusername/mcp-mock-api#readme",
+  "homepage": "https://github.com/Storm-Glitch-O1/mcp-mock-api#readme",
   "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
