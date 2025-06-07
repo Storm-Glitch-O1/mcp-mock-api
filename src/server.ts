@@ -8,17 +8,33 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { PersistentStorage } from "./storage.js";
 import { MockStorage } from "./types.js";
 
-const PORT = 9090;
-
-// Get storage path from command line arguments
-// Usage: node server.js --storage-path=/path/to/storage
-// If not provided, defaults to ./data in the current working directory
+// Get command line arguments
+// Usage: node server.js --storage-path=/path/to/storage --port=8080
 const args = process.argv.slice(2);
+
+// Parse storage path argument
 const storagePathArg = args.find((arg) => arg.startsWith("--storage-path="));
 const storagePath = storagePathArg ? storagePathArg.split("=")[1] : undefined;
 
+// Parse port argument
+const portArg = args.find((arg) => arg.startsWith("--port="));
+let PORT = portArg ? parseInt(portArg.split("=")[1], 10) : 9090;
+
+// Validate port number
+if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
+  console.error(
+    `❌ Invalid port number: ${
+      portArg ? portArg.split("=")[1] : PORT
+    }. Using default port 9090.`
+  );
+  PORT = 9090;
+}
+
 console.error(
   `📂 Storage path ${storagePath ? "set to: " + storagePath : "using default"}`
+);
+console.error(
+  `🌐 Server port ${portArg ? "set to: " + PORT : "using default: " + PORT}`
 );
 
 // Initialize persistent storage

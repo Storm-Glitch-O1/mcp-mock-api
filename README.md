@@ -22,20 +22,36 @@ pnpm build
 pnpm start
 ```
 
-## Storage Configuration
+## Configuration
+
+### Storage Path
 
 The mock endpoints are saved to a JSON file that persists between server restarts. You can configure the storage location using:
 
-### Command line argument:
+#### Command line argument:
 
 ```bash
 # Run with custom storage path
 node dist/server.js --storage-path=/path/to/storage
 ```
 
+### Server Port
+
+The HTTP server runs on port 9090 by default. You can override this using:
+
+#### Command line argument:
+
+```bash
+# Run with custom port
+node dist/server.js --port=8080
+
+# Combine storage path and port
+node dist/server.js --storage-path=/path/to/storage --port=3000
+```
+
 ### VS Code MCP configuration:
 
-In the `.vscode/mcp.json` file, you can specify the storage path:
+In the `.vscode/mcp.json` file, you can specify both storage path and port:
 
 ```json
 {
@@ -45,14 +61,15 @@ In the `.vscode/mcp.json` file, you can specify the storage path:
       "command": "node",
       "args": [
         "${workspaceFolder}/dist/server.js",
-        "--storage-path=${workspaceFolder}/mcp-data"
+        "--storage-path=${workspaceFolder}/mcp-data",
+        "--port=9090"
       ]
     }
   }
 }
 ```
 
-If no storage path is provided, the server will use a `data` directory in the current working directory.
+If no port is provided, the server will use the default port 9090. If no storage path is provided, the server will use a `data` directory in the current working directory.
 
 ## Usage
 

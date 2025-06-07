@@ -5,7 +5,8 @@
       "command": "node",
       "args": [
         "${workspaceFolder}/dist/server.js",
-        "--storage-path=${workspaceFolder}/mcp-data"
+        "--storage-path=${workspaceFolder}/mcp-data",
+        "--port=9090"
       ]
     }
   }
