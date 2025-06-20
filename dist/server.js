@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as path from "path";
 import { z } from "zod";
 import { McpServer, ResourceTemplate, } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -17,7 +18,13 @@ if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
     console.error(`❌ Invalid port number: ${portArg ? portArg.split("=")[1] : PORT}. Using default port 9090.`);
     PORT = 9090;
 }
-console.error(`📂 Storage path ${storagePath ? "set to: " + storagePath : "using default"}`);
+console.error(`📂 Storage path ${storagePath
+    ? "set to: " + storagePath
+    : "not provided, using default location: " +
+        path.join(process.cwd(), "data")}`);
+if (!storagePath) {
+    console.error("⚠️  WARNING: No storage path specified. If the default location is not accessible, storage will be ephemeral.");
+}
 console.error(`🌐 Server port ${portArg ? "set to: " + PORT : "using default: " + PORT}`);
 // Initialize persistent storage
 const storage = new PersistentStorage(storagePath);

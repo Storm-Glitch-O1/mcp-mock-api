@@ -49,6 +49,8 @@ The mock endpoints are saved to a JSON file that persists between server restart
 node dist/server.js --storage-path=/path/to/storage
 ```
 
+> **Important:** If the `--storage-path` parameter is not provided, the server will use a `data` directory in the current working directory. If this directory can't be created or accessed, the storage will be ephemeral (in-memory only) and all endpoint data will be lost when the server stops. To ensure data persistence, always specify a valid storage path.
+
 ### Server Port
 
 The HTTP server runs on port 9090 by default. You can override this using:

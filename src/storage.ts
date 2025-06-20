@@ -10,6 +10,16 @@ export class PersistentStorage {
     // Use provided path or default to './data' relative to cwd
     this.storageDir = dataPath || path.join(process.cwd(), "data");
     this.storageFile = path.join(this.storageDir, "mockEndpoints.json");
+
+    // Log whether storage will be persistent or possibly ephemeral
+    if (!dataPath) {
+      console.error(
+        `⚠️  Storage path not provided. Using default path: ${this.storageFile}`
+      );
+      console.error(
+        "⚠️  NOTE: If this path is not accessible, storage will be ephemeral (in-memory only)"
+      );
+    }
   }
 
   async saveMockEndpoints(endpoints: MockStorage): Promise<void> {

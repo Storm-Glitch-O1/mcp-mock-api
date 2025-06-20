@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as path from "path";
 import { z } from "zod";
 import {
   McpServer,
@@ -31,8 +32,18 @@ if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
 }
 
 console.error(
-  `📂 Storage path ${storagePath ? "set to: " + storagePath : "using default"}`
+  `📂 Storage path ${
+    storagePath
+      ? "set to: " + storagePath
+      : "not provided, using default location: " +
+        path.join(process.cwd(), "data")
+  }`
 );
+if (!storagePath) {
+  console.error(
+    "⚠️  WARNING: No storage path specified. If the default location is not accessible, storage will be ephemeral."
+  );
+}
 console.error(
   `🌐 Server port ${portArg ? "set to: " + PORT : "using default: " + PORT}`
 );
@@ -60,7 +71,6 @@ async function loadEndpoints() {
     console.error("Failed to load existing endpoints:", error);
   }
 }
-
 
 // Helper function to send JSON response
 function sendJSON(res: http.ServerResponse, statusCode: number, data: any) {
@@ -152,11 +162,9 @@ server.tool(
         content: [
           {
             type: "text",
-            text: `ℹ️ Endpoint: ${method} ${path}\nStatus: ${endpoint.statusCode}\nResponse: ${JSON.stringify(
-              endpoint.response,
-              null,
-              2
-            )}`,
+            text: `ℹ️ Endpoint: ${method} ${path}\nStatus: ${
+              endpoint.statusCode
+            }\nResponse: ${JSON.stringify(endpoint.response, null, 2)}`,
           },
         ],
       };

@@ -14,5 +14,190 @@
       "message": "Hello from the test endpoint!"
     },
     "statusCode": 200
+  },
+  "GET:/api/posts": {
+    "method": "GET",
+    "path": "/api/posts",
+    "response": [
+      {
+        "id": 1,
+        "title": "Getting Started with Go",
+        "content": "Go is an open source programming language designed for building simple, fast, and reliable software.",
+        "author": "Rob Pike",
+        "created_at": "2025-06-10T10:00:00Z",
+        "tags": [
+          "go",
+          "programming",
+          "tutorial"
+        ]
+      },
+      {
+        "id": 2,
+        "title": "RESTful API Development in Go",
+        "content": "Learn how to create RESTful APIs using Go and popular frameworks like Gin and Echo.",
+        "author": "Ken Thompson",
+        "created_at": "2025-06-12T14:30:00Z",
+        "tags": [
+          "go",
+          "api",
+          "rest",
+          "web"
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Concurrency in Go",
+        "content": "Understanding goroutines, channels, and the concurrency model in Go.",
+        "author": "Robert Griesemer",
+        "created_at": "2025-06-15T09:15:00Z",
+        "tags": [
+          "go",
+          "concurrency",
+          "goroutines",
+          "channels"
+        ]
+      }
+    ],
+    "statusCode": 200
+  },
+  "GET:/api/posts/1": {
+    "method": "GET",
+    "path": "/api/posts/1",
+    "response": {
+      "created_at": "2025-06-10T10:00:00Z",
+      "id": 1,
+      "title": "Getting Started with Go",
+      "content": "Go is an open source programming language designed for building simple, fast, and reliable software. \n\nTo get started with Go, first install it from golang.org, then create a file named hello.go with the following content:\n\n```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"Hello, Go!\")\n}\n```\n\nRun it with `go run hello.go`",
+      "author": "Rob Pike",
+      "tags": [
+        "go",
+        "programming",
+        "tutorial"
+      ]
+    },
+    "statusCode": 200
+  },
+  "POST:/api/posts": {
+    "method": "POST",
+    "path": "/api/posts",
+    "response": {
+      "created_at": "2025-06-16T12:34:56Z",
+      "id": 4,
+      "title": "Your New Post",
+      "content": "Content of your post",
+      "author": "Your Name",
+      "tags": [
+        "go"
+      ]
+    },
+    "statusCode": 201
+  },
+  "GET:/api/users": {
+    "method": "GET",
+    "path": "/api/users",
+    "response": [
+      {
+        "id": 1,
+        "username": "gopher",
+        "name": "Go Enthusiast",
+        "email": "gopher@example.com",
+        "role": "admin",
+        "created_at": "2024-01-15T08:30:00Z"
+      },
+      {
+        "id": 2,
+        "username": "godev",
+        "name": "Go Developer",
+        "email": "godev@example.com",
+        "role": "editor",
+        "created_at": "2024-02-20T14:45:00Z"
+      },
+      {
+        "id": 3,
+        "username": "newbie",
+        "name": "New Go User",
+        "email": "newbie@example.com",
+        "role": "user",
+        "created_at": "2025-05-10T11:20:00Z"
+      }
+    ],
+    "statusCode": 200
+  },
+  "GET:/api/users/1": {
+    "method": "GET",
+    "path": "/api/users/1",
+    "response": {
+      "name": "Go Enthusiast",
+      "created_at": "2024-01-15T08:30:00Z",
+      "id": 1,
+      "role": "admin",
+      "email": "gopher@example.com",
+      "username": "gopher",
+      "bio": "Passionate about Go programming and cloud-native technologies",
+      "projects": [
+        "GoWebAPI",
+        "DataProcessor",
+        "CloudIntegration"
+      ],
+      "skills": [
+        "Go",
+        "Docker",
+        "Kubernetes",
+        "PostgreSQL",
+        "Redis"
+      ]
+    },
+    "statusCode": 200
+  },
+  "GET:/api/categories": {
+    "method": "GET",
+    "path": "/api/categories",
+    "response": [
+      {
+        "id": 1,
+        "name": "Go Basics",
+        "description": "Fundamental concepts in Go programming",
+        "post_count": 12
+      },
+      {
+        "id": 2,
+        "name": "Web Development",
+        "description": "Building web applications with Go",
+        "post_count": 8
+      },
+      {
+        "id": 3,
+        "name": "Concurrency",
+        "description": "Working with goroutines and channels",
+        "post_count": 5
+      },
+      {
+        "id": 4,
+        "name": "Database",
+        "description": "Database integration with Go",
+        "post_count": 7
+      },
+      {
+        "id": 5,
+        "name": "Testing",
+        "description": "Testing Go applications",
+        "post_count": 4
+      }
+    ],
+    "statusCode": 200
+  },
+  "GET:/api/stats": {
+    "method": "GET",
+    "path": "/api/stats",
+    "response": {
+      "users": 42,
+      "posts": 36,
+      "categories": 5,
+      "tags": 24,
+      "last_updated": "2025-06-16T00:00:00Z",
+      "active_users": 15,
+      "post_views": 2547
+    },
+    "statusCode": 200
   }
 }
