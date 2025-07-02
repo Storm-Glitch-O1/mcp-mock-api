@@ -8,10 +8,17 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "tsc && node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --watch src --ext ts,json --exec \"ts-node --esm src/server.ts\"",
+    "test": "jest"
   },
-  "keywords": ["mcp", "mock-api", "model-context-protocol", "api-testing", "llm", "typescript"],
+  "keywords": [
+    "mcp",
+    "mock-api",
+    "model-context-protocol",
+    "api-testing",
+    "llm",
+    "typescript"
+  ],
   "author": "",
   "license": "MIT",
   "repository": {
@@ -31,6 +38,11 @@
     "zod": "^3.25.55"
   },
   "devDependencies": {
-    "@types/node": "^22.15.30"
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.30",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "ts-jest": "^29.3.4",
+    "ts-node": "^10.9.2"
   }
 }
